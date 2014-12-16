@@ -1,0 +1,141 @@
+body {
+	font-size:100%;
+}
+
+.chart .axis line {
+	stroke:black;
+}
+
+.chart .axis path{
+	fill:none;
+}
+
+.chart .axis text, .chart .axis line {
+	opacity:.6;
+	font-family:helvetica;
+	font-size:.6em;
+}
+
+
+@media screen and (min-width: 500px) {
+    body{font-size: 150%;}
+}
+
+
+.view-title {
+	font-size:.8em;
+	padding-top:10px;
+}
+
+#bottom {
+	font-size:.5em;
+}
+
+.chart svg {
+	font-family:helvetica;
+	font-size:.7em;
+}
+
+.chart .div-title {
+	font-size:.8em;
+	font-family:georgia;
+	text-align:center;
+	padding-top:10px;
+}
+
+.chart .tick line {
+	opacity:.2;
+}
+
+.chart .ytitle-div {
+	-webkit-transform: rotate(270deg);
+	-moz-transform: rotate(270deg);
+	-o-transform: rotate(270deg);
+	-ms-transform: rotate(270deg);
+	transform: rotate(270deg);
+	transform-origin: left top 0;
+	-webkit-transform-origin: left top 0;
+	left: 10px;
+	text-align: center;
+	position: absolute;
+	height: 50px !important;
+}
+
+.chart .axis-label {
+	font-size:.7em;
+	font-family:helvetica;
+	opacity:.6;
+}
+
+.chart .xtitle-div {
+	text-align:center;
+}
+
+.chart .line-label {
+	font-family:helvetica;
+}
+
+#imagechart-svg .label {
+	font-size:1.1em;
+}
+
+#bottom {
+	position:absolute;
+	left:0px;
+}
+
+.hover {
+	pointer-events:none;
+}
+
+.icon:hover {
+	opacity:1 !important;
+	cursor:pointer;
+}
+
+.icon:active {
+	opacity:.7 !important;
+	cursor:pointer;
+}
+
+/* 
+body {
+	margin:0px;
+}
+ */
+#container {
+	position:absolute;
+	height:100%;
+	width:100%;
+	top:0px;
+	left:0px;
+/* 
+  background: url(../imgs/elder_man_light.png) no-repeat center center fixed, rgba(255,255,255,0.4); 
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+ */
+}
+
+#chart-container {
+	margin: 8px;
+}
+
+#imagechart-g .axis text {
+	font-size:1em;
+}
+
+.tip {
+	font-size:.5em;
+}
+
+.overlay {
+  fill: none;
+  pointer-events: all;
+  cursor:pointer;
+}
+
+.circle {
+	cursor: pointer;
+}

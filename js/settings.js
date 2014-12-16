@@ -1,14 +1,46 @@
-var defaults = {
-	shape:shape,
-	grayFunctions: [],
-	getGrayFunctions: [],
-	parameters: {},
-	loadedData:{},
-	measures:['source', 'channel', 'region', 'health focus area'],
-	years:d3.range(1990, 2015),
-	analytics:{
-		id: 'UA-10018300-15', 
-		url:'washington.edu',
+var settings = {
+	textView:{
+		id:'textView',
+		filePath:'data/output.csv', 
+		charts:['scatterChart', 'textChart'], 
+		buildChart:function(view, chart, index) {
+			switch(chart) {
+				case 'scatterChart':
+					view.charts[index] = new ScatterChart(settings.scatterChart)
+					break
+				case 'textChart':
+					view.charts[index] = new TextChart(settings.textChart)
+					break
+				default:
+					break;
+			}
+		}, 
+		poshyEvents:[
+			{wrapper:'scatterChart-div', klass:'circle', content:function(d){
+				var dat = this.__data__
+				var text = '<b>' + view.settings.xVar + '</b>: ' + view.charts[0].settings.xTickFormat(Number(dat.x)) + '</br>'
+				text += '<b>' + view.settings.yVar + '</b>: ' + view.charts[0].settings.yTickFormat(Number(dat.y)) + '</br>'
+				text += dat.text.substr(0, 100) 
+				if(dat.text.length>100) text += '...'
+				return text
+			}},
+		], 
+		clickEvents: [
+			{wrapper:'scatterChart-div', klass:'circle', attribute:'circle-id', setting:'selected'},
+		], 
+	},
+	scatterChart:{
+		id:'scatterChart',
+		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3}
+	},
+	textChart: {
+		id:'textChart', 
+		getWidth:function(chart) {return $('#'+chart.settings.container).width()/3},
+		getPosition:function(chart){return {
+			top:0, 
+			left:$('#'+chart.settings.container).width()*2/3
+		}}
+
 	},
 	flow: {
 		id:'flow', 
@@ -19,7 +51,6 @@ var defaults = {
 		parentTarget:26,
 		// data:data,
 		data:{},
-		nodes:nodes,
 		parentNode:25,
 		node:25,
 		getTitles:function(controller) {
@@ -366,75 +397,3 @@ var defaults = {
 }
 
 
-// orders
-defaults.order = {
-	source: 
-		["Unallocable",
-		"Other",
-		"Debt repayments",
-		"Other (private)",
-		"Corporate donations",
-		"BMGF",
-		"Other governments",
-		"Australia",
-		"Canada",
-		"France",
-		"Germany",
-		"Japan",
-		"Netherlands",
-		"Norway",
-		"Spain",
-		"United Kingdom",
-		"United States",
-		"Preliminary estimates",],
-	channel:[
-		"Regional development banks",
-		"African Development Bank",
-		"Asian Development Bank",
-		"Inter-American Development Bank",
-		"World Bank - IBRD",
-		"World Bank - IDA",
-		"NGOs",
-		"Other foundations",
-		"Bloomberg",
-		"BMGF",
-		"Global Fund",
-		"Gavi",
-		"European Commission",
-		"UN Agencies (UNICEF, UNFPA, UNAIDS, PAHO)",
-		"WHO",
-		"Other bilaterals",
-		"Australia",
-		"Canada",
-		"France",
-		"Germany",
-		"United Kingdom",
-		"United States",
-	],
-	region:
-		["Unallocable",
-		"Global",
-		"North Africa/ Middle East",
-		"Latin America and Caribbean",
-		"Europe and Central Asia",
-		"East Asia and Pacific",
-		"South Asia",
-		"Sub-Saharan Africa",
-		"Preliminary estimates",
-		]
-
-	}
-	
-defaults.order['health focus area'] = [
-		"Unallocable",
-		"Other",
-		"SWAps\\health sector support",
-		"Noncommunicable diseases",
-		"Ebola",
-		"Other infectious diseases",
-		"Tuberculosis",
-		"Malaria",
-		"Maternal health",
-		"Child and newborn health",
-		"HIV/AIDS",
-		]

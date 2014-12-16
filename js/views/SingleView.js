@@ -104,7 +104,7 @@ SingleView.prototype.addClickEvents = function() {
 		var listener = function(event) {
 			var value = click.attribute == 'none' ? 'switch' : $(this).attr(click.attribute)
 			if(self.settings[click.setting] == value) {
-				self.settings[click.setting] = click.default(self)
+				self.settings[click.setting] = click.default == undefined ? value : click.default(self)
 				self.updateCharts()
 				return
 			}
@@ -201,6 +201,6 @@ SingleView.prototype.updatePoshys = function() {
 	var self = this
 	if(self.settings.poshyEvents == undefined) return
 	self.settings.poshyEvents.map(function(poshy) {
-		if(poshy.static != true) $('#' + poshy.wrapper + ' [class~=' + poshy.klass + ']').poshytip('update', poshy.content())
+		// if(poshy.static != true) $('#' + poshy.wrapper + ' [class~=' + poshy.klass + ']').poshytip('update', poshy.content())
 	})
 }

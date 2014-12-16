@@ -37,7 +37,7 @@ Chart.prototype.init = function(settings) {
 		fontSize:'25px',
 		getLegend:function() {},
 		yTickFormat:d3.format('.2s'), 
-		xTickFormat:d3.format(''),
+		xTickFormat:d3.format('.2s'),
 		pointRadius:10,
 		getTitleText:function() {return 'This is a chart title'}, 
 		yLabel:'Vertical axis text',
@@ -74,13 +74,14 @@ Chart.prototype.init = function(settings) {
 Chart.prototype.getSize = function() {
 	var self = this
 	self.settings.height = self.settings.getHeight(self) 
-	self.settings.width = self.settings.getWidth()
+	self.settings.width = self.settings.getWidth(self)
 	self.settings.margin = self.settings.getMargin()
-	self.settings.svgHeight =  self.settings.height  - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight() - $('#' + self.settings.id + '-legend-div').outerHeight() - $('#' + self.settings.id + '-div .xtitle-div').outerHeight() - self.settings.bottomPadding
+	self.settings.svgHeight =  self.settings.height  - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight() - $('#' + self.settings.id + '-legend-div').outerHeight()  - self.settings.bottomPadding
+	if(self.settings.id == 'scatterChart') console.log('svgHeight ', self.settings.svgHeight, $('#' + self.settings.id + '-div .xtitle-div').outerHeight())
 	self.settings.plotHeight = self.settings.svgHeight - self.settings.margin.top - self.settings.margin.bottom
 	self.settings.plotWidth = self.settings.width - self.settings.margin.left - self.settings.margin.right
 	self.settings.legend = self.settings.getLegend(self)	
-	self.settings.position = self.settings.getPosition()
+	self.settings.position = self.settings.getPosition(self)
 	if(self.settings.type == 'map') {
 		self.settings.mapHeight = self.settings.height - self.settings.legend.space - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight()
 	}
@@ -92,7 +93,7 @@ Chart.prototype.setScales = function() {
 	if(self.settings.hasScale == false) return
 	var elementSize = self.settings.getElementSize()
 	var limits = self.settings.lock == true ? self.settings.limits : self.getLimits()
-	if(limits.x != undefined) {
+	if(limits != undefined && limits.x != undefined) {
 		if(self.settings.xScaleType == 'ordinal' && self.settings.ordinalType == 'bands') {
 			self.xScale = d3.scale.ordinal().rangeRoundBands([elementSize.width, self.settings.plotWidth - elementSize.width], self.settings.getXrangeBand()).domain(limits.x)
 		}
@@ -112,7 +113,8 @@ Chart.prototype.setScales = function() {
 			.tickFormat(self.settings.xTickFormat)
 			.tickValues(self.tickData == undefined ? null : self.tickData)
 	}
-	if(limits.y != undefined) {
+	if(limits != undefined && limits.y != undefined) {
+		// console.log(self.settings.plotHeight, elementSize.height)
 		self.yScale= d3.scale.linear().range([self.settings.plotHeight - elementSize.height, elementSize.height]).domain([limits.y.min, limits.y.max])
 		self.yaxis = d3.svg.axis()
 					.scale(self.yScale)
@@ -128,7 +130,6 @@ Chart.prototype.setScales = function() {
 Chart.prototype.build = function() {
 	var self = this
 	self.getSize()
-	
 	self.div = d3.select('#' + self.settings.container).append("div").attr('id', self.settings.id + '-div').attr('class', 'chart').style('position', 'absolute').style('top', self.settings.position.top + 'px').style('left', self.settings.position.left + 'px')
 
 	// Draw titles
@@ -138,6 +139,8 @@ Chart.prototype.build = function() {
 	}
 
 	self.getSize()
+	self.setScales()
+
 	// Draw SVG & G
 	if(self.settings.hasSvg == true) {
 		self.svgWrapper = d3.select('#' + self.settings.id + '-div').append("div").style('height', self.settings.svgHeight + 'px').style('width', self.settings.width + 'px').style("position", "relative")
@@ -150,6 +153,15 @@ Chart.prototype.build = function() {
 		self.g = self.svg.append("g")
 			.attr("id", self.settings.id + '-g')
 			.attr('transform', 'translate(' + self.settings.margin.left + ',' + self.settings.margin.top + ')')
+
+		if(self.settings.zoomAble == true) {
+			self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
+			self.g.append('rect')
+				.attr("class", "overlay")
+				.attr("id", "clip")
+			    .attr("width", self.settings.plotWidth)
+			    .attr("height", self.settings.plotHeight);
+		}
 	}
 	
 // 	// Build axes
@@ -161,8 +173,7 @@ Chart.prototype.build = function() {
 	self.buildAxisLabels()	
 	
 // // 	// Draw
- 	self.draw()	
-	
+	self.draw()	
 }
 
 // Draw - intended to be overwritten by inherited objects
@@ -171,10 +182,12 @@ Chart.prototype.draw = function() {}
 // Build axes 
 Chart.prototype.buildAxes = function() {
 	var self = this
+	self.setScales()
 	if(self.settings.hasXAxis == true) {
 		self.xaxisLabels = self.g.append("g")
 			.attr("class", "axis xaxis")
 			.attr("id", "xaxis")
+			.attr('transform', 'translate(' + 0 + ',' + self.settings.xAxisTop + ')')
 	}
 	
 	
@@ -319,6 +332,36 @@ Chart.prototype.generateData = function(observations) {
 // Define set of functions for positioning, interactivity, etc. 
 Chart.prototype.defineFunctions = function() {
 	var self = this
+
+	self.zoomTransform = function(d) {
+		// console.log('zoom transform ', self.xScale(d.x))
+		return 'translate(' + self.xScale(d.x) + ',' + self.yScale(d.y) + ')'
+	}
+	// Zooming
+	self.zoom = function() {
+		console.log('zoom!')
+ 		self.g.selectAll('.circle').call(self.circlePositionFunction)
+		self.xaxisLabels.call(self.xaxis)
+		self.yaxisLabels.call(self.yaxis)
+	}
+
+	// Circle position function
+	self.circlePositionFunction = function(circle) {
+		circle
+			// .attr('transform', function(d){return 'translate(' + self.xScale(d.x) + ',' + self.yScale(d.y) + ')'})
+			.attr('transform', self.zoomTransform)
+			// .attr('cx', function(d) {if(d.x>.1) {console.log(d.x, self.xScale(d.x))};return self.xScale(d.x)})
+			// .attr('cy', function(d) {return self.yScale(d.y)})
+			.attr('r', function(d) {return self.settings.getRadius(d)})
+			.attr('class', 'circle')
+			.attr('circle-id', function(d) {return d.id})
+			.style('visibility', function(d) {
+				if(self.xScale(d.x)<0 | self.xScale(d.x) > self.settings.plotWidth | self.yScale(d.y)<0 | self.yScale(d.y)>self.settings.plotHeight){
+					return 'hidden'
+				} 
+				else return 'visible'
+			})
+	}
 	
 	// Sankey node function
 	self.nodeFunction = function(node) {
