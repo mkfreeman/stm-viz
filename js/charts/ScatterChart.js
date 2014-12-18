@@ -7,6 +7,11 @@ var ScatterChart = function(sets) {
 		xTickFormat:d3.format('.2s'),
 		hoverFormat:d3.format('.2s'),
 		yLine:0, 
+		legendType:'continuous',
+		getHeight:function(chart) {
+			var val = chart.settings.legendType == 'continuous' ? 60 : 20
+			return $('#' + self.settings.container).innerHeight() - val - $('#bottom').height()
+		},
 		zoomAble:true,
 		pointRadius:10,
 		getRadius:function(d) {return 10},
@@ -20,14 +25,22 @@ var ScatterChart = function(sets) {
 		hasLegend:false,
 		hasRect:false,
 		xScaleType:'linear',
-		getLegend: function(chart) {
-			return {
-				width:chart.settings.plotWidth, 
-				height:100,
-				minElementWidth:100,
-				elementHeight:30,
+		getLegend:function(chart){
+			return {	
+				height:20, 
+				width:chart.settings.plotWidth,
+				shift:chart.settings.margin.left,
+				rectWidth:20, 
 			}
-		}, 
+		},
+		// getLegend: function(chart) {
+		// 	return {
+		// 		width:chart.settings.plotWidth, 
+		// 		height:100,
+		// 		minElementWidth:100,
+		// 		elementHeight:30,
+		// 	}
+		// }, 
 		xScaleType:'linear'
 	}
 	var initSettings = $.extend(false, defaults, sets)
@@ -57,7 +70,6 @@ ScatterChart.prototype.draw = function(build, reset, changeOpacity, duration) {
 	var self = this
 	duration = duration == undefined ? 500 : duration
 	if(self.settings.hasLegend == true) self.drawLegend()	
-	console.log('scatter draw get size ')
 	self.getSize()
 	self.setScales()
 	// draw bubbles
@@ -69,4 +81,68 @@ ScatterChart.prototype.draw = function(build, reset, changeOpacity, duration) {
 	if(self.settings.zoomAble == true) {
 		self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
 	}
+	self.drawLegend()
+}
+
+ScatterChart.prototype.drawLegend = function() {
+	var self = this
+	if(self.settings.legendBuilt != true) {
+		console.log('build legend')
+		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('pointer-events', 'none')
+		self.legendDiv = self.legendWrapper.append('div').attr('id', self.settings.id + '-legend-div')
+		self.legend = self.legendDiv
+			.append("svg")		
+			.attr('id', self.settings.id + '-legend-svg')
+
+		self.gradient = self.legend
+		.append("svg:defs")
+			.append("svg:linearGradient")
+			.attr("id", "map-gradient")
+			.attr("x1", "0%")
+			.attr("y1", "0%")
+			.attr("x2", "100%")
+			.attr("y2", "0%");
+		$.extend([],self.settings.colorRange).reverse().forEach(function(d,i){
+			self.gradient.append("svg:stop")
+				.attr("offset",((i+1)/(12)))
+				.attr("stop-color", d)
+				.attr('id', 'stop-color-' + i)
+		});
+
+		self.legendBar = self.legend.append("g")
+		self.legendRect = self.legendBar.append('rect').attr('id', self.settings.id + '-legendrect')
+	}
+
+	self.legend
+		.attr("height", self.settings.legend.height + 40)
+		.attr("width", self.settings.legend.width + self.settings.legend.shift + 24)
+	
+	
+	self.legendBar
+		.attr('transform', 'translate(' + self.settings.legend.shift+',0)')	
+	
+	self.legendRect		
+			.attr('y', '0px')
+			.attr('x', '0px')
+			.attr('height', self.settings.legend.height)
+			.attr('width',  self.settings.legend.width)
+			.attr('stroke', 'none')
+			.attr('fill', 'url(#map-gradient)')
+
+
+	// self.legendAxes = d3.svg.axis()
+	// 	.scale(self.legendScale)
+	// 	.orient('bottom')
+	
+	// self.legendLabels = self.legend.append('g')
+	// 	.attr('transform', 'translate(' + self.settings.legend.shift+ ',' + (self.settings.legend.height) + ')')
+	// 	.attr('class', 'axis')
+	// 	.call(self.legendAxes);
+		
+	// self.legendText = self.legend.append('g')
+	// 	.attr('transform', 'translate(' + (self.settings.legend.shift -40)+ ',' + (self.settings.legend.height/2) + ')')
+	// 	.append('text').text(this.settings.legendTitle)
+
+	self.settings.legendBuilt = true
+
 }

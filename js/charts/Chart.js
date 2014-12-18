@@ -6,7 +6,7 @@ Chart.prototype.init = function(settings) {
 	var self = this
 	var defaults = {
 		getHeight:function() {
-			return $('#' + self.settings.container).innerHeight() - 20 
+			return $('#' + self.settings.container).innerHeight() - 40 - $('#bottom').height()
 		},
 		getWidth:function() {return $(window).width() - 20}, 
 		hasXAxis:true,
@@ -76,8 +76,7 @@ Chart.prototype.getSize = function() {
 	self.settings.height = self.settings.getHeight(self) 
 	self.settings.width = self.settings.getWidth(self)
 	self.settings.margin = self.settings.getMargin()
-	self.settings.svgHeight =  self.settings.height  - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight() - $('#' + self.settings.id + '-legend-div').outerHeight()  - self.settings.bottomPadding
-	if(self.settings.id == 'scatterChart') console.log('svgHeight ', self.settings.svgHeight, $('#' + self.settings.id + '-div .xtitle-div').outerHeight())
+	self.settings.svgHeight =  self.settings.height  - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight()  - self.settings.bottomPadding
 	self.settings.plotHeight = self.settings.svgHeight - self.settings.margin.top - self.settings.margin.bottom
 	self.settings.plotWidth = self.settings.width - self.settings.margin.left - self.settings.margin.right
 	self.settings.legend = self.settings.getLegend(self)	
@@ -114,7 +113,6 @@ Chart.prototype.setScales = function() {
 			.tickValues(self.tickData == undefined ? null : self.tickData)
 	}
 	if(limits != undefined && limits.y != undefined) {
-		// console.log(self.settings.plotHeight, elementSize.height)
 		self.yScale= d3.scale.linear().range([self.settings.plotHeight - elementSize.height, elementSize.height]).domain([limits.y.min, limits.y.max])
 		self.yaxis = d3.svg.axis()
 					.scale(self.yScale)
@@ -353,6 +351,7 @@ Chart.prototype.defineFunctions = function() {
 			// .attr('cx', function(d) {if(d.x>.1) {console.log(d.x, self.xScale(d.x))};return self.xScale(d.x)})
 			// .attr('cy', function(d) {return self.yScale(d.y)})
 			.attr('r', function(d) {return self.settings.getRadius(d)})
+			.style('fill', function(d) {return self.settings.getColor(d)})
 			.attr('class', 'circle')
 			.attr('circle-id', function(d) {return d.id})
 			.style('visibility', function(d) {

@@ -31,7 +31,15 @@ var settings = {
 	},
 	scatterChart:{
 		id:'scatterChart',
-		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3}
+		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3}, 
+		getMargin:function() { 
+			return {
+				top:50, 
+				bottom:20, 
+				right:50, 
+				left:150
+			}
+		}, 
 	},
 	textChart: {
 		id:'textChart', 

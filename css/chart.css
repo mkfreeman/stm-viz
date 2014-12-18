@@ -17,9 +17,6 @@ body {
 }
 
 
-@media screen and (min-width: 500px) {
-    body{font-size: 150%;}
-}
 
 
 .view-title {
