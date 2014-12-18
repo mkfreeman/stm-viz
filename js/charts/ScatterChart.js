@@ -9,7 +9,7 @@ var ScatterChart = function(sets) {
 		yLine:0, 
 		legendType:'continuous',
 		getHeight:function(chart) {
-			var val = chart.settings.legendType == 'continuous' ? 60 : 20
+			var val = chart.settings.legendType == 'continuous' ? 80 : 20
 			return $('#' + self.settings.container).innerHeight() - val - $('#bottom').height()
 		},
 		zoomAble:true,
@@ -27,20 +27,12 @@ var ScatterChart = function(sets) {
 		xScaleType:'linear',
 		getLegend:function(chart){
 			return {	
-				height:20, 
+				height:12, 
 				width:chart.settings.plotWidth,
 				shift:chart.settings.margin.left,
 				rectWidth:20, 
 			}
 		},
-		// getLegend: function(chart) {
-		// 	return {
-		// 		width:chart.settings.plotWidth, 
-		// 		height:100,
-		// 		minElementWidth:100,
-		// 		elementHeight:30,
-		// 	}
-		// }, 
 		xScaleType:'linear'
 	}
 	var initSettings = $.extend(false, defaults, sets)
@@ -88,7 +80,7 @@ ScatterChart.prototype.drawLegend = function() {
 	var self = this
 	if(self.settings.legendBuilt != true) {
 		console.log('build legend')
-		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('pointer-events', 'none')
+		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('pointer-events', 'none').style('margin-top', '26px')
 		self.legendDiv = self.legendWrapper.append('div').attr('id', self.settings.id + '-legend-div')
 		self.legend = self.legendDiv
 			.append("svg")		
@@ -111,6 +103,14 @@ ScatterChart.prototype.drawLegend = function() {
 
 		self.legendBar = self.legend.append("g")
 		self.legendRect = self.legendBar.append('rect').attr('id', self.settings.id + '-legendrect')
+
+		self.legendLabels = self.legend.append('g')
+			.attr('transform', 'translate(' + self.settings.legend.shift+ ',' + (self.settings.legend.height) + ')')
+			.attr('class', 'axis')
+
+		self.legendText = self.legend.append('g')
+			.attr('transform', 'translate(' + (self.settings.legend.shift -50)+ ',' + (self.settings.legend.height/2 + 5) + ')')
+			.append('text')
 	}
 
 	self.legend
@@ -129,19 +129,16 @@ ScatterChart.prototype.drawLegend = function() {
 			.attr('stroke', 'none')
 			.attr('fill', 'url(#map-gradient)')
 
-
-	// self.legendAxes = d3.svg.axis()
-	// 	.scale(self.legendScale)
-	// 	.orient('bottom')
+	self.settings.legendScale.range([0, self.settings.plotWidth])
+	self.legendAxes = d3.svg.axis()
+		.scale(self.settings.legendScale)
+		.orient('bottom')
+		.ticks(4)
 	
-	// self.legendLabels = self.legend.append('g')
-	// 	.attr('transform', 'translate(' + self.settings.legend.shift+ ',' + (self.settings.legend.height) + ')')
-	// 	.attr('class', 'axis')
-	// 	.call(self.legendAxes);
+	self.legendLabels
+		.call(self.legendAxes);
 		
-	// self.legendText = self.legend.append('g')
-	// 	.attr('transform', 'translate(' + (self.settings.legend.shift -40)+ ',' + (self.settings.legend.height/2) + ')')
-	// 	.append('text').text(this.settings.legendTitle)
+	self.legendText.text(self.settings.legendLabel)
 
 	self.settings.legendBuilt = true
 

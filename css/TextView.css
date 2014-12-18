@@ -17,3 +17,13 @@
 #bottom, #bottom .control-container {
 	display: inline-block;
 }
+
+
+body {
+	font-size:200%;
+	overflow:hidden;
+}
+
+#scatterChart-div {
+	border-right: 1px solid #d3d3d3;
+}

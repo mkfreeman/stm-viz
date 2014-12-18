@@ -29,6 +29,7 @@ TextView.prototype.prepData = function(chart) {
 			})
 			settings[chart].xLabel = self.settings.xVar
 			settings[chart].yLabel = self.settings.yVar
+			settings[chart].legendLabel = self.settings.colorVar
 			self.setRadius()
 			self.setColor()
 			break
@@ -68,6 +69,7 @@ TextView.prototype.setColor = function() {
 		var colorDomain = d3.range(max,min, -(max - min)/11)
 		var colorScale = d3.scale.linear().range(self.settings.colorRange).domain(colorDomain)
 		settings['scatterChart'].getColor = function(d) {return colorScale(d.colorValue)}	
+		settings['scatterChart'].legendScale = d3.scale.linear().domain([min,max])
 	}
 }
 
@@ -96,7 +98,19 @@ TextView.prototype.loadData = function(callback) {
 
 TextView.prototype.getControlValues = function() {
 	var self = this
-	self.yVarValues = self.xVarValues = d3.keys(self.settings.data[0]).filter(function(d) {return d!='body'})
+	self.yVarValues = self.xVarValues = d3.keys(self.settings.data[0])
+		.filter(function(d) {return isNaN(Number(self.settings.data[0][d])) == false})
+		// .sort(function(a,b){
+		// 	console.log(a,b)
+		// 	if(a.indexOf('Topic') != -1 && b.indexOf("Topic") != -1) return a - b
+		// 	else {
+		// 		var aNum = Number(a.replace('Topic ', ''))
+		// 		var bNum = Number(b.replace('Topic ', ''))
+		// 		console.log('a ', aNum, ' b ', bNum)
+		// 		return aNum - bNum
+		// 	}
+		// })
+	self.radiusValues = self.colorValues = d3.keys(self.settings.data[0]).filter(function(d) {return isNaN(Number(self.settings.data[0][d])) == false})
 }
 
 TextView.prototype.buildControls = function() {
@@ -132,7 +146,7 @@ TextView.prototype.buildControls = function() {
 		text: 'Radius:', 
 		type: 'select',
 		options:function() {
-			return self.yVarValues.map(function(d){return {id:d, text:d}})
+			return self.radiusValues.map(function(d){return {id:d, text:d}})
 		},
 		default:self.settings.radiusVar
 	}
@@ -142,7 +156,7 @@ TextView.prototype.buildControls = function() {
 		text: 'Color:', 
 		type: 'select',
 		options:function() {
-			return self.yVarValues.map(function(d){return {id:d, text:d}})
+			return self.colorValues.map(function(d){return {id:d, text:d}})
 		},
 		default:self.settings.colorVar
 	}

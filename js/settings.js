@@ -31,7 +31,7 @@ var settings = {
 	},
 	scatterChart:{
 		id:'scatterChart',
-		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3}, 
+		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3 - 10}, 
 		getMargin:function() { 
 			return {
 				top:50, 
@@ -40,6 +40,11 @@ var settings = {
 				left:150
 			}
 		}, 
+		hasTitle:true, 
+		getTitleText:function(chart) {
+			console.log(chart)
+			return chart.settings.xLabel +  ' v.s. ' + chart.settings.yLabel
+		}
 	},
 	textChart: {
 		id:'textChart', 
