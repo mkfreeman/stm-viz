@@ -42,7 +42,6 @@ var settings = {
 		}, 
 		hasTitle:true, 
 		getTitleText:function(chart) {
-			console.log(chart)
 			return chart.settings.xLabel +  ' v.s. ' + chart.settings.yLabel
 		}
 	},

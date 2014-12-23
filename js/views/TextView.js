@@ -10,7 +10,7 @@ var TextView = function(sets) {
 		colorRange:colorbrewer['RdYlBu'][11],
 		maxRadius:15,
 		group:'All NCDs',
-		selected:100,
+		selected:77,
 		hasControls:true,  
 	}
 	var initSettings = $.extend(false, defaults, sets)
@@ -76,7 +76,15 @@ TextView.prototype.setColor = function() {
 TextView.prototype.loadData = function(callback) {
 	var self = this
 	if(self.charts == undefined) self.charts = []
-	if(self.settings.loadedData != true) {
+	if(typeof data != 'undefined') {
+		self.settings.data = data
+		self.settings.loadedData = true
+			if(typeof callback == 'function') {
+				callback()
+
+			}
+	}
+	else if(self.settings.loadedData != true ) {
 		d3.csv(self.settings.filePath, function(data) {
 			self.settings.data = data.filter(function(d,i){
 				if(d.id == undefined) d.id = i
