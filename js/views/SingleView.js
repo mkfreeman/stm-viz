@@ -22,11 +22,12 @@ SingleView.prototype.init = function(sets) {
 			})
 		}
 	}
-	self.update = function() {
+	self.update = function(control) {
+		console.log('view update via ', control)
 		self.charts.map(function(chart,i) {
 			self.prepData(chart.settings.id)
 			self.changeTitle()
-			chart.update(settings[chart.settings.id])
+			chart.update(settings[chart.settings.id], control)
 		})
 		self.updatePoshys()
 	}
@@ -62,12 +63,19 @@ SingleView.prototype.init = function(sets) {
 // Load Data
 SingleView.prototype.loadData = function(callback) {
 	var self = this
-	if(typeof callback == 'function') callback()
+	var args = []
+	console.log('load data ', arguments)
+	for(var i=0; i<arguments.length; i++) {
+        console.log(arguments[i])
+    	args.push(arguments[i])
+    }
+	if(typeof callback == 'function') callback(args)
 }
 // Update Charts
-SingleView.prototype.updateCharts = function() {
+SingleView.prototype.updateCharts = function(control,value) {
 	var self = this
-	self.loadData(self.update)
+	console.log('update charts ', value)
+	self.loadData(self.update, control, value)
 }
 
 // Prep view data

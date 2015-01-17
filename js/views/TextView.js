@@ -21,6 +21,15 @@ TextView.prototype = Object.create(SingleView.prototype)
 
 TextView.prototype.prepData = function(chart) {
 	var self = this
+	self.update = function(control) {
+		var resetScale = control[0] == 'radiusVar' | control[0] == 'colorVar' ? false : true
+		self.charts.map(function(chart,i) {
+			self.prepData(chart.settings.id)
+			self.changeTitle()
+			chart.update(settings[chart.settings.id], resetScale)
+		})
+		self.updatePoshys()
+	}
 	switch(chart) {
 		case 'scatterChart':
 			settings[chart].data = self.settings.data.map(function(d, i) {
@@ -75,12 +84,17 @@ TextView.prototype.setColor = function() {
 
 TextView.prototype.loadData = function(callback) {
 	var self = this
+	// console.log(control, value)
+	var args = []
+	for(var i=1; i<arguments.length; i++) {
+    	if(arguments[i].id != undefined) args.push(arguments[i].id)
+    }
 	if(self.charts == undefined) self.charts = []
 	if(typeof data != 'undefined') {
 		self.settings.data = data
 		self.settings.loadedData = true
 			if(typeof callback == 'function') {
-				callback()
+				callback(args)
 
 			}
 	}
@@ -92,14 +106,14 @@ TextView.prototype.loadData = function(callback) {
 			)
 			self.settings.loadedData = true
 			if(typeof callback == 'function') {
-				callback()
+				callback(args)
 
 			}
 		})
 	}
 	else {
 		if(typeof callback == 'function') {
-			callback()
+			callback(args)
 		}
 	}
 }

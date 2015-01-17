@@ -89,6 +89,7 @@ Chart.prototype.getSize = function() {
 // Set scales
 Chart.prototype.setScales = function() {
 	var self = this
+	console.log('set scales')
 	if(self.settings.hasScale == false) return
 	var elementSize = self.settings.getElementSize()
 	var limits = self.settings.lock == true ? self.settings.limits : self.getLimits()
@@ -153,7 +154,7 @@ Chart.prototype.build = function() {
 			.attr('transform', 'translate(' + self.settings.margin.left + ',' + self.settings.margin.top + ')')
 
 		if(self.settings.zoomAble == true) {
-			self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
+			self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 15]).on("zoom", self.zoom))
 			self.g.append('rect')
 				.attr("class", "overlay")
 				.attr("id", "clip")
@@ -255,8 +256,9 @@ if(self.settings.hasXLabel == true) {
 }
 
 // Update
-Chart.prototype.update = function(sets) {
+Chart.prototype.update = function(sets, resetScale) {
 	var self = this
+	var resetScale = resetScale == undefined ? true : resetScale
 	self.settings = $.extend(false, self.settings, sets)
 	self.data = self.settings.data
 	if(typeof self.filterData == 'function') self.filterData()
@@ -264,18 +266,27 @@ Chart.prototype.update = function(sets) {
 		self.settings.customUpdate(self)
 		return
 	}
-	self.resize()	
-	self.draw()
+	if(self.settings.hasYLabel == true) {
+		self.ytitle 
+			.text(self.settings.yLabel)
+	}
+	if(self.settings.hasXLabel == true) {
+		self.xtitle 
+			.text(self.settings.xLabel)
+	}
+	self.resize(resetScale)	
+	self.draw(resetScale)
 }
 
 // Resize event - repositions elements
-Chart.prototype.resize = function(build) {
+Chart.prototype.resize = function(resetScale) {
 	var self = this
+	console.log('resize build ', resetScale)
 	if(self.settings.resize == false) return
 	self.getSize()
 	if(self.settings.hasTitle) self.changeTitle()		
 	self.getSize()
-	self.setScales()
+	if(resetScale == true) self.setScales()
 	var build = build || true;
 	var transition = build == true? 0 : 1500
 	self.div.transition().duration(transition).style('top', self.settings.position.top + 'px').style('left', self.settings.position.left + 'px')
@@ -298,7 +309,7 @@ Chart.prototype.resize = function(build) {
 		self.xaxisLabels.attr('transform', 'translate(' + 0 + ',' + self.settings.xAxisTop + ')')
 	}
 	
-	self.drawAxes(transition)
+	if(resetScale == true)  self.drawAxes(transition)
 	
 	
 	if(self.settings.hasMapLegend == true) {

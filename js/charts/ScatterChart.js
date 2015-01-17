@@ -58,12 +58,13 @@ ScatterChart.prototype.getLimits = function() {
 }
 
 // Draw elements -- called on build and resize
-ScatterChart.prototype.draw = function(build, reset, changeOpacity, duration) {
+ScatterChart.prototype.draw = function(resetScale, duration) {
 	var self = this
 	duration = duration == undefined ? 500 : duration
 	if(self.settings.hasLegend == true) self.drawLegend()	
+	if(resetScale == true) self.setScales()
 	self.getSize()
-	self.setScales()
+	if(resetScale == true) self.setScales()
 	// draw bubbles
 	var circles = self.g.selectAll('.circle').data(self.settings.data, function(d) {return d.id})
 	circles.exit().remove()
