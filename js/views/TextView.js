@@ -22,7 +22,7 @@ TextView.prototype = Object.create(SingleView.prototype)
 TextView.prototype.prepData = function(chart) {
 	var self = this
 	self.update = function(control) {
-		var resetScale = control[0] == 'radiusVar' | control[0] == 'colorVar' ? false : true
+		var resetScale = control[0] == 'radiusVar' | control[0] == 'colorVar' | control == 'click' ? false : true
 		self.charts.map(function(chart,i) {
 			self.prepData(chart.settings.id)
 			self.changeTitle()
@@ -87,6 +87,7 @@ TextView.prototype.loadData = function(callback) {
 	// console.log(control, value)
 	var args = []
 	for(var i=1; i<arguments.length; i++) {
+		if(arguments[i] == undefined) return
     	if(arguments[i].id != undefined) args.push(arguments[i].id)
     }
 	if(self.charts == undefined) self.charts = []
@@ -162,6 +163,7 @@ TextView.prototype.buildControls = function() {
 		},
 		default:self.settings.yVar
 	}
+	
 
 	self.controlSettings['radiusVar'] = {
 		id: 'radiusVar', 
@@ -182,6 +184,19 @@ TextView.prototype.buildControls = function() {
 		},
 		default:self.settings.colorVar
 	}
+
+	self.controlSettings['reset'] = {
+		id: 'reset', 
+		text: 'Center', 
+		type: 'button',
+		default:true, 
+		change:function() {
+			self.update('recenter')
+			// alert('test')
+			$('#control-button-reset').blur()
+		}
+	}
+
 	// Bottom controls
 	self.bottomControls = new Controls({
 		controller:self, 

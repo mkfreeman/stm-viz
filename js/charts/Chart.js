@@ -89,7 +89,7 @@ Chart.prototype.getSize = function() {
 // Set scales
 Chart.prototype.setScales = function() {
 	var self = this
-	console.log('set scales')
+	// console.log('set scales')
 	if(self.settings.hasScale == false) return
 	var elementSize = self.settings.getElementSize()
 	var limits = self.settings.lock == true ? self.settings.limits : self.getLimits()
@@ -172,7 +172,7 @@ Chart.prototype.build = function() {
 	self.buildAxisLabels()	
 	
 // // 	// Draw
-	self.draw()	
+	self.draw(true)	
 }
 
 // Draw - intended to be overwritten by inherited objects

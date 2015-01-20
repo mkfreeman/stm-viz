@@ -70,8 +70,9 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 	circles.exit().remove()
 	circles.enter().append('circle').call(self.circlePositionFunction)
 	self.g.selectAll('.circle').transition().duration(500).call(self.circlePositionFunction)
-
-	if(self.settings.zoomAble == true) {
+	
+	if(self.settings.zoomAble == true && resetScale == true) {
+		console.log('calling zoom behavior ', resetScale)
 		self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
 	}
 	self.drawLegend()
@@ -80,7 +81,6 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 ScatterChart.prototype.drawLegend = function() {
 	var self = this
 	if(self.settings.legendBuilt != true) {
-		console.log('build legend')
 		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('pointer-events', 'none').style('margin-top', '26px')
 		self.legendDiv = self.legendWrapper.append('div').attr('id', self.settings.id + '-legend-div')
 		self.legend = self.legendDiv

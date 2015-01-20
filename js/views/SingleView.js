@@ -110,10 +110,11 @@ SingleView.prototype.addClickEvents = function() {
 	if(self.settings.clickEvents == undefined) return
 	self.settings.clickEvents.map(function(click) {
 		var listener = function(event) {
+			console.log('click')
 			var value = click.attribute == 'none' ? 'switch' : $(this).attr(click.attribute)
 			if(self.settings[click.setting] == value) {
 				self.settings[click.setting] = click.default == undefined ? value : click.default(self)
-				self.updateCharts()
+				self.update('click')
 				return
 			}
 			event.stopPropagation()
@@ -123,7 +124,7 @@ SingleView.prototype.addClickEvents = function() {
 			else {
 				 self.settings[click.setting] = value
 			}
-			self.updateCharts()
+			self.update('click')
 		}
 		$(document).off('click', '#' + click.wrapper + ' [class~=' + click.klass + ']')
 		$(document).on('click', '#' + click.wrapper + ' [class~=' + click.klass + ']', listener)
