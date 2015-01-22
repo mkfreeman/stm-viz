@@ -14,7 +14,7 @@ Chart.prototype.init = function(settings) {
 		hasSvg:true,
 		hasLegend:false,
 		hasXLabel:true,
-		getXrangeBand:function() {return .3},
+		getXrangeBand:function() {return 1},
 		xAxisPosition:'bottom',
 		hasYLabel:true,
 		bottomPadding:0, 
@@ -111,7 +111,7 @@ Chart.prototype.setScales = function() {
 			.ticks(5)
 			.tickSize(self.settings.getXtickSize())
 			.tickFormat(self.settings.xTickFormat)
-			.tickValues(self.tickData == undefined ? null : self.tickData)
+			.tickValues(d3.keys(self.settings.xAxisLabels).length >0 ? d3.values(self.settings.xAxisLabels) : null)
 	}
 	if(limits != undefined && limits.y != undefined) {
 		self.yScale= d3.scale.linear().range([self.settings.plotHeight - elementSize.height, elementSize.height]).domain([limits.y.min, limits.y.max])
@@ -121,7 +121,10 @@ Chart.prototype.setScales = function() {
 					.tickSize(self.settings.getYtickSize())
 					.ticks(5)
 					.tickFormat(self.settings.yTickFormat)
+					.tickValues(d3.keys(self.settings.yAxisLabels).length >0 ? d3.values(self.settings.yAxisLabels) : null)
+
 	}
+	// console.log('set scales ', self.xScale.range(), self.xScale.domain())
 
 }
 
@@ -348,7 +351,6 @@ Chart.prototype.defineFunctions = function() {
 	}
 	// Zooming
 	self.zoom = function() {
-		console.log('zoom!')
  		self.g.selectAll('.circle').call(self.circlePositionFunction)
 		self.xaxisLabels.call(self.xaxis)
 		self.yaxisLabels.call(self.yaxis)

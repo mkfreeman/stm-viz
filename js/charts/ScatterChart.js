@@ -4,9 +4,24 @@ var ScatterChart = function(sets) {
 	defaults = {
 		hasAxes:true, 
 		hasSvg:true,
-		xTickFormat:d3.format('.2s'),
+		xTickFormat:function(d) {
+			if(d3.keys(self.settings.xAxisLabels).length >0) {
+				return self.getKeyByValue(self.settings.xAxisLabels, d)
+			}				
+			var formatter = d3.format('.2s')
+			return formatter(d)
+		},
+		yTickFormat:function(d) {
+			if(d3.keys(self.settings.yAxisLabels).length >0) {
+				return self.getKeyByValue(self.settings.yAxisLabels, d)
+				// return 'test'
+			}				
+			var formatter = d3.format('.2s')
+			return formatter(d)
+		},
 		hoverFormat:d3.format('.2s'),
 		yLine:0, 
+		ordinalType:'overwrite',
 		legendType:'continuous',
 		getHeight:function(chart) {
 			var val = chart.settings.legendType == 'continuous' ? 80 : 20
@@ -33,7 +48,6 @@ var ScatterChart = function(sets) {
 				rectWidth:20, 
 			}
 		},
-		xScaleType:'linear'
 	}
 	var initSettings = $.extend(false, defaults, sets)
 	self.init(initSettings)
@@ -45,13 +59,25 @@ ScatterChart.prototype = Object.create(Chart.prototype)
 // Get data limits
 ScatterChart.prototype.getLimits = function() {
 	var self = this
+	var limits = {x:{}, y:{}}
 	if(typeof self.settings.customGetLimits == 'function') {
 		return self.settings.customGetLimits(self)
 	}
-	var limits = {x:{}, y:{}}
+	if(self.settings.xScaleType == 'ordinal') {
+		var included = []
+		self.settings.data.map(function(d) {
+			if(included.indexOf(d.x) == -1) {
+				included.push(d.x)
+			}
+		})
+		limits.x.min = -1
+		limits.x.max = included.length
+	}
+	else {
+		limits.x.min = d3.min(self.settings.data, function(d) {return d.x}) 
+		limits.x.max = d3.max(self.settings.data, function(d) {return d.x}) 
+	}
 	var values = []
-	limits.x.min = d3.min(self.settings.data, function(d) {return d.x}) 
-	limits.x.max = d3.max(self.settings.data, function(d) {return d.x}) 
 	limits.y.min = self.settings.showZero == true ? 0 : d3.min(self.settings.data, function(d) {return Number(d.y)}) 
 	limits.y.max = d3.max(self.settings.data, function(d) {return Number(d.y)}) 
 	return limits
@@ -72,7 +98,6 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 	self.g.selectAll('.circle').transition().duration(500).call(self.circlePositionFunction)
 	
 	if(self.settings.zoomAble == true && resetScale == true) {
-		console.log('calling zoom behavior ', resetScale)
 		self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
 	}
 	self.drawLegend()
@@ -143,4 +168,13 @@ ScatterChart.prototype.drawLegend = function() {
 
 	self.settings.legendBuilt = true
 
+}
+
+ScatterChart.prototype.getKeyByValue = function( obj, value ) {
+    for( var prop in obj ) {
+        if( obj.hasOwnProperty( prop ) ) {
+             if( obj[ prop ] === value )
+                 return prop;
+        }
+    }
 }

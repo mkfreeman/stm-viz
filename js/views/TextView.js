@@ -2,8 +2,8 @@
 var TextView = function(sets) {
 	var self = this 
 	defaults = {
-		xVar:'Topic 1', 
-		yVar:'Topic 2',
+		xVar:'Topic 6', 
+		yVar:'Condition',
 		radiusVar:'Topic 1', 
 		colorVar:'Topic 1',
 		minRadius:2, 
@@ -19,8 +19,42 @@ var TextView = function(sets) {
 
 TextView.prototype = Object.create(SingleView.prototype)
 
+TextView.prototype.getLabels = function() {
+	var self = this
+	self.settings.xAxisLabels = {}
+	self.settings.yAxisLabels = {}
+	if(Number(self.settings.data[0][self.settings.xVar]) != self.settings.data[0][self.settings.xVar]) {
+		var names = []
+		self.settings.data.map(function(d){
+			if(names.indexOf(d[self.settings.xVar]) == -1) names.push(d[self.settings.xVar])
+		})
+		names.sort(function(a,b) {
+			if(a < b) return -1;
+		    if(a > b) return 1;
+		    return 0;
+		}).map(function(d,i){
+			self.settings.xAxisLabels[d] = i
+		})
+	}
+	if(Number(self.settings.data[0][self.settings.yVar]) != self.settings.data[0][self.settings.yVar]) {
+		
+		var names = []
+		self.settings.data.map(function(d){
+			if(names.indexOf(d[self.settings.yVar]) == -1) names.push(d[self.settings.yVar])
+		})
+		names.sort(function(a,b) {
+			if(a < b) return -1;
+		    if(a > b) return 1;
+		    return 0;
+		}).map(function(d,i){
+			self.settings.yAxisLabels[d] = i
+		})
+	}
+}
+
 TextView.prototype.prepData = function(chart) {
 	var self = this
+	self.getLabels()
 	self.update = function(control) {
 		var resetScale = control[0] == 'radiusVar' | control[0] == 'colorVar' | control == 'click' ? false : true
 		self.charts.map(function(chart,i) {
@@ -34,9 +68,13 @@ TextView.prototype.prepData = function(chart) {
 		case 'scatterChart':
 			settings[chart].data = self.settings.data.map(function(d, i) {
 				var id = self.settings.idVariable == undefined ? i : d[self.settings.id]
-				return {x:d[self.settings.xVar], y:d[self.settings.yVar], id:id, text:d.body, radiusValue:d[self.settings.radiusVar], colorValue:Number(d[self.settings.colorVar])}
+				var xVal = Number(d[self.settings.xVar]) != d[self.settings.xVar] ? self.settings.xAxisLabels[d[self.settings.xVar]] : d[self.settings.xVar]
+				var yVal = Number(d[self.settings.yVar]) != d[self.settings.yVar]  ? self.settings.yAxisLabels[d[self.settings.yVar]] : d[self.settings.yVar]
+				return {x:xVal, y:yVal, id:id, text:d.body, radiusValue:d[self.settings.radiusVar], colorValue:Number(d[self.settings.colorVar])}
 			})
 			settings[chart].xLabel = self.settings.xVar
+			settings[chart].xAxisLabels = self.settings.xAxisLabels
+			settings[chart].yAxisLabels = self.settings.yAxisLabels
 			settings[chart].yLabel = self.settings.yVar
 			settings[chart].legendLabel = self.settings.colorVar
 			self.setRadius()
@@ -84,7 +122,6 @@ TextView.prototype.setColor = function() {
 
 TextView.prototype.loadData = function(callback) {
 	var self = this
-	// console.log(control, value)
 	var args = []
 	for(var i=1; i<arguments.length; i++) {
 		if(arguments[i] == undefined) return
@@ -100,6 +137,7 @@ TextView.prototype.loadData = function(callback) {
 			}
 	}
 	else if(self.settings.loadedData != true ) {
+		alert('reading csv')
 		d3.csv(self.settings.filePath, function(data) {
 			self.settings.data = data.filter(function(d,i){
 				if(d.id == undefined) d.id = i
@@ -121,19 +159,12 @@ TextView.prototype.loadData = function(callback) {
 
 TextView.prototype.getControlValues = function() {
 	var self = this
-	self.yVarValues = self.xVarValues = d3.keys(self.settings.data[0])
+	self.yVarValues = self.xVarValues =  d3.keys(self.settings.data[0]).filter(function(d) {
+		return d!= 'body'
+	})
+
+	self.radiusValues = self.colorValues = d3.keys(self.settings.data[0])
 		.filter(function(d) {return isNaN(Number(self.settings.data[0][d])) == false})
-		// .sort(function(a,b){
-		// 	console.log(a,b)
-		// 	if(a.indexOf('Topic') != -1 && b.indexOf("Topic") != -1) return a - b
-		// 	else {
-		// 		var aNum = Number(a.replace('Topic ', ''))
-		// 		var bNum = Number(b.replace('Topic ', ''))
-		// 		console.log('a ', aNum, ' b ', bNum)
-		// 		return aNum - bNum
-		// 	}
-		// })
-	self.radiusValues = self.colorValues = d3.keys(self.settings.data[0]).filter(function(d) {return isNaN(Number(self.settings.data[0][d])) == false})
 }
 
 TextView.prototype.buildControls = function() {

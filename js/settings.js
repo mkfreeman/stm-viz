@@ -37,7 +37,7 @@ var settings = {
 				top:50, 
 				bottom:20, 
 				right:50, 
-				left:150
+				left:80
 			}
 		}, 
 		hasTitle:true, 
