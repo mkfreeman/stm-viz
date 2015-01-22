@@ -221,14 +221,19 @@ Chart.prototype.changeTitle = function(duration) {
 	self.title.style('width', self.settings.plotWidth + 'px')
 	self.titleText.text(self.settings.getTitleText(self))
 }
-
+// var test
 // Draw axes 
 Chart.prototype.drawAxes = function(duration) {
 	var self = this
 	var duration = duration || 1500;
 	self.setScales()
-	if(self.settings.hasYAxis == true) self.yaxisLabels.transition().duration(duration).call(self.yaxis)
-	if(self.settings.hasXAxis == true) self.xaxisLabels.transition().duration(duration).call(self.xaxis)
+	if(self.settings.hasYAxis == true) self.yaxisLabels.transition().duration(duration).call(self.yaxis).selectAll('text').each(function(data) {
+		d3.select(this).attr('dat', data)
+	})
+
+	if(self.settings.hasXAxis == true) self.xaxisLabels.transition().duration(duration).call(self.xaxis).selectAll('text').each(function(data) {
+		d3.select(this).attr('dat', data)
+	})
 }
 
 // Build axis labels
@@ -239,7 +244,7 @@ Chart.prototype.buildAxisLabels = function() {
 	var width = self.settings.plotHeight
 	var height = self.settings.plotHeight
 	if(self.settings.hasYLabel == true) {
-		self.ytitleDiv = self.div.append('div').attr('class', 'ytitle-div').style('width', self.settings.plotHeight+ 'px').style('left', (self.settings.margin.left -75) + 'px')
+		self.ytitleDiv = self.div.append('div').attr('class', 'ytitle-div').style('width', self.settings.plotHeight+ 'px').style('left', (self.settings.margin.left -75) + 'px').style("height", '10px !important')
 		self.ytitle = self.ytitleDiv.append('text')
 			.text(self.settings.yLabel)
 			.attr('transform', 'translate(0,0) rotate(-90)')
@@ -302,7 +307,7 @@ Chart.prototype.resize = function(resetScale) {
 			.attr('viewbox', '0,0,' + self.settings.width + ',' + self.settings.svgHeight)
 	}
 		
-	if(self.settings.hasYLabel == true)self.ytitleDiv.style('width', self.settings.plotHeight+ 'px')
+	if(self.settings.hasYLabel == true)self.ytitleDiv.style('width', self.settings.plotHeight+ 'px').style("height", '10px !important')
 	
 	if(self.settings.hasXLabel == true) {
 		self.xtitleDiv.style('width', self.settings.plotWidth+ 'px').style('margin-left', self.settings.margin.left + 'px')		

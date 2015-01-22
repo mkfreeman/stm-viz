@@ -24,6 +24,20 @@ var settings = {
 				if(dat.text.length>100) text += '...'
 				return text
 			}},
+			// {wrapper:'scatterChart-div', klass:'axis', content:function(d){
+			{wrapper:'scatterChart-div', customSelect:'#scatterChart-div [class~="yaxis"] text', content:function(d){
+				test = this
+				var dat = $(this).attr('dat')
+				return d3.keys(view.charts[0].settings.yAxisLabels).length == 0 ? false :view.charts[0].settings.yTickFormat(dat)
+			}},
+			{wrapper:'scatterChart-div', customSelect:'#scatterChart-div [class~="xaxis"] text', content:function(d){
+				test = this
+				var dat = $(this).attr('dat')
+				return d3.keys(view.charts[0].settings.xAxisLabels).length == 0 ? false : view.charts[0].settings.xTickFormat(dat)
+			}},
+			{wrapper:'scatterChart-div', klass:'legend-text', content:function(d){
+				return view.charts[0].settings.legendLabel
+			}},
 		], 
 		clickEvents: [
 			{wrapper:'scatterChart-div', klass:'circle', attribute:'circle-id', setting:'selected'},

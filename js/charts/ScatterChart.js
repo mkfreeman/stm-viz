@@ -1,4 +1,5 @@
 // ScatterChart object function -- inherits from Chart
+var test
 var ScatterChart = function(sets) {
 	var self = this 
 	defaults = {
@@ -6,14 +7,17 @@ var ScatterChart = function(sets) {
 		hasSvg:true,
 		xTickFormat:function(d) {
 			if(d3.keys(self.settings.xAxisLabels).length >0) {
-				return self.getKeyByValue(self.settings.xAxisLabels, d)
+				console.log(d)
+				var limit = this.id == self.settings.id ? 100 : 11
+				return self.shortenText(self.getKeyByValue(self.settings.xAxisLabels, Number(d)), limit)
 			}				
 			var formatter = d3.format('.2s')
 			return formatter(d)
 		},
 		yTickFormat:function(d) {
 			if(d3.keys(self.settings.yAxisLabels).length >0) {
-				return self.getKeyByValue(self.settings.yAxisLabels, d)
+				var limit = this.id == self.settings.id ? 100 : 11
+				return self.shortenText(self.getKeyByValue(self.settings.yAxisLabels, Number(d)), limit)
 				// return 'test'
 			}				
 			var formatter = d3.format('.2s')
@@ -106,7 +110,7 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 ScatterChart.prototype.drawLegend = function() {
 	var self = this
 	if(self.settings.legendBuilt != true) {
-		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('pointer-events', 'none').style('margin-top', '26px')
+		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('margin-top', '26px')
 		self.legendDiv = self.legendWrapper.append('div').attr('id', self.settings.id + '-legend-div')
 		self.legend = self.legendDiv
 			.append("svg")		
@@ -136,7 +140,10 @@ ScatterChart.prototype.drawLegend = function() {
 
 		self.legendText = self.legend.append('g')
 			.attr('transform', 'translate(' + (self.settings.legend.shift -50)+ ',' + (self.settings.legend.height/2 + 5) + ')')
+			.attr('class', 'legend-text')
 			.append('text')
+			.style('font-size', '.8em')
+			.style('cursor', 'pointer')
 	}
 
 	self.legend
@@ -164,7 +171,7 @@ ScatterChart.prototype.drawLegend = function() {
 	self.legendLabels
 		.call(self.legendAxes);
 		
-	self.legendText.text(self.settings.legendLabel)
+	self.legendText.text(self.shortenText(self.settings.legendLabel, 9))
 
 	self.settings.legendBuilt = true
 
@@ -177,4 +184,10 @@ ScatterChart.prototype.getKeyByValue = function( obj, value ) {
                  return prop;
         }
     }
+}
+
+ScatterChart.prototype.shortenText = function(text,length) {
+	console.log('shorten ', text, length)
+	if(text.length<=length+3) return text
+	return text.substr(0, length) + '...'
 }

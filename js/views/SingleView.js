@@ -200,6 +200,7 @@ SingleView.prototype.addPoshyEvents = function() {
 		}
 		
 		if(poshy.customSelect != undefined) {
+			console.log('custom select ', poshy.customSelect)
 			$(poshy.customSelect).poshytip(args)
 		}
 		else $('#' + poshy.wrapper + ' [class~=' + poshy.klass + ']').poshytip(args)
