@@ -24,7 +24,6 @@ var TextChart =  function(sets) {
 		styles:{},
 	}
 	var initSettings = $.extend(false, defaults, sets)
-	console.log('textchart')
 	self.init(initSettings)
 }
 
@@ -33,7 +32,6 @@ TextChart.prototype = Object.create(Chart.prototype)
 // Draw elements -- called on build and resize
 TextChart.prototype.draw = function() {
 	var self = this
-	console.log('draw text')
 	if(self.textWrapper == undefined) {
 		 self.textWrapper = self.div.append('div').attr('id', self.settings.id + '-wrapper').style('text-align', 'left').style('margin-top', '7px')
 	}

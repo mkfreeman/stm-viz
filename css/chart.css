@@ -143,3 +143,36 @@ body {
 li {
 	font-size:10px;
 }
+
+#control-label-buttons-zoom {
+	padding-right:5px;
+}
+
+#control-wrapper-buttons-zoom {
+	width:30px;
+	position:absolute;
+	font-size:.6em;
+}
+
+
+#control-wrapper-buttons-zoom .control-button {
+	margin: 0px;
+	display: inline-block;
+	float: left;
+	background:#ffffff;
+	color:#454545 !important;
+}
+
+#control-container-buttons-zoom .control-button:first-of-type{
+	border-radius: 0;
+	border-top-left-radius:5px;
+	border-top-right-radius:5px;
+	border-bottom: 0;
+}
+
+#control-container-buttons-zoom .control-button:last-of-type{
+	border-radius: 0;
+	border-bottom-left-radius:5px;
+	border-bottom-right-radius:5px;
+	border-top: 0;
+}

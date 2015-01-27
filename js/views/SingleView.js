@@ -23,7 +23,6 @@ SingleView.prototype.init = function(sets) {
 		}
 	}
 	self.update = function(control) {
-		console.log('view update via ', control)
 		self.charts.map(function(chart,i) {
 			self.prepData(chart.settings.id)
 			self.changeTitle()
@@ -64,9 +63,7 @@ SingleView.prototype.init = function(sets) {
 SingleView.prototype.loadData = function(callback) {
 	var self = this
 	var args = []
-	console.log('load data ', arguments)
 	for(var i=0; i<arguments.length; i++) {
-        console.log(arguments[i])
     	args.push(arguments[i])
     }
 	if(typeof callback == 'function') callback(args)
@@ -74,7 +71,6 @@ SingleView.prototype.loadData = function(callback) {
 // Update Charts
 SingleView.prototype.updateCharts = function(control,value) {
 	var self = this
-	console.log('update charts ', value)
 	self.loadData(self.update, control, value)
 }
 
@@ -110,7 +106,6 @@ SingleView.prototype.addClickEvents = function() {
 	if(self.settings.clickEvents == undefined) return
 	self.settings.clickEvents.map(function(click) {
 		var listener = function(event) {
-			console.log('click')
 			var value = click.attribute == 'none' ? 'switch' : $(this).attr(click.attribute)
 			if(self.settings[click.setting] == value) {
 				self.settings[click.setting] = click.default == undefined ? value : click.default(self)
@@ -200,7 +195,6 @@ SingleView.prototype.addPoshyEvents = function() {
 		}
 		
 		if(poshy.customSelect != undefined) {
-			console.log('custom select ', poshy.customSelect)
 			$(poshy.customSelect).poshytip(args)
 		}
 		else $('#' + poshy.wrapper + ' [class~=' + poshy.klass + ']').poshytip(args)

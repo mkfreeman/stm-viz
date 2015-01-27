@@ -7,7 +7,6 @@ var ScatterChart = function(sets) {
 		hasSvg:true,
 		xTickFormat:function(d) {
 			if(d3.keys(self.settings.xAxisLabels).length >0) {
-				console.log(d)
 				var limit = this.id == self.settings.id ? 100 : 11
 				return self.shortenText(self.getKeyByValue(self.settings.xAxisLabels, Number(d)), limit)
 			}				
@@ -28,8 +27,8 @@ var ScatterChart = function(sets) {
 		ordinalType:'overwrite',
 		legendType:'continuous',
 		getHeight:function(chart) {
-			var val = chart.settings.legendType == 'continuous' ? 80 : 20
-			return $('#' + self.settings.container).innerHeight() - val - $('#bottom').height()
+			var bottom = d3.keys(chart.settings.colorLabels).length != 0 ? 30 : 80
+			return $('#' + self.settings.container).innerHeight() - bottom - $('#bottom').height()
 		},
 		zoomAble:true,
 		pointRadius:10,
@@ -49,7 +48,8 @@ var ScatterChart = function(sets) {
 				height:12, 
 				width:chart.settings.plotWidth,
 				shift:chart.settings.margin.left,
-				rectWidth:20, 
+				rectWidth:20,
+				rectHeight:10, 
 			}
 		},
 	}
@@ -105,11 +105,44 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 		self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
 	}
 	self.drawLegend()
+	// var select = $("#id_" + this.settings.highlighted)[0]
+	var select = $('#circle-'+self.settings.selected)[0]
+	if(typeof(select)!= undefined) select.parentNode.appendChild(select)
+
 }
 
 ScatterChart.prototype.drawLegend = function() {
 	var self = this
-	if(self.settings.legendBuilt != true) {
+	$('#' + self.settings.id + '-legend-wrapper').remove()
+	if(d3.keys(self.settings.colorLabels).length == 0) self.drawContinuousLegend()
+	else self.drawCategoricalLegend()
+}
+
+
+ScatterChart.prototype.drawCategoricalLegend = function() {
+	var self = this
+	var x =  self.xScale.range()[1] + self.settings.margin.left + 40
+	var y = 10
+	legendData = d3.keys(self.settings.colorLabels)
+	if(legendData.length == 1) return
+	var labelScale = d3.scale.linear().domain([legendData.length-1,0]).range([0,(self.settings.height - 50)]) 
+		
+	var legend = self.svg.append('g').attr('id', self.settings.id + '-legend-wrapper').attr('transform', 'translate(' + (x) + ',' +(y) + ')').style('cursor', 'pointer')
+	var labels = legend.selectAll('g')
+					.data(legendData, function(d) {return d})
+					.enter().append('g')
+					.attr('class', 'legend-g')
+					.attr('transform', function(d,i) {return 'translate(0,' +((i*40) ) + ')' })
+					
+	var legRects = labels.append('rect').call(self.legendRectFunc)
+		
+
+	var text = labels.append('text').call(self.legendTextFunc)
+}
+
+ScatterChart.prototype.drawContinuousLegend = function() {
+	// if(self.settings.legendBuilt != true) {
+		var self = this
 		self.legendWrapper = self.div.append('div').attr('id', self.settings.id + '-legend-wrapper').style('margin-top', '26px')
 		self.legendDiv = self.legendWrapper.append('div').attr('id', self.settings.id + '-legend-div')
 		self.legend = self.legendDiv
@@ -144,7 +177,7 @@ ScatterChart.prototype.drawLegend = function() {
 			.append('text')
 			.style('font-size', '.8em')
 			.style('cursor', 'pointer')
-	}
+	// }
 
 	self.legend
 		.attr("height", self.settings.legend.height + 40)
@@ -173,8 +206,7 @@ ScatterChart.prototype.drawLegend = function() {
 		
 	self.legendText.text(self.shortenText(self.settings.legendLabel, 9))
 
-	self.settings.legendBuilt = true
-
+	// self.settings.legendBuilt = true
 }
 
 ScatterChart.prototype.getKeyByValue = function( obj, value ) {
@@ -187,7 +219,6 @@ ScatterChart.prototype.getKeyByValue = function( obj, value ) {
 }
 
 ScatterChart.prototype.shortenText = function(text,length) {
-	console.log('shorten ', text, length)
 	if(text.length<=length+3) return text
 	return text.substr(0, length) + '...'
 }

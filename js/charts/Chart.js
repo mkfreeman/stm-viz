@@ -75,7 +75,7 @@ Chart.prototype.getSize = function() {
 	var self = this
 	self.settings.height = self.settings.getHeight(self) 
 	self.settings.width = self.settings.getWidth(self)
-	self.settings.margin = self.settings.getMargin()
+	self.settings.margin = self.settings.getMargin(self)
 	self.settings.svgHeight =  self.settings.height  - $('#' + self.settings.id + '-divtitle').outerHeight() - $('.view-title').outerHeight()  - self.settings.bottomPadding
 	self.settings.plotHeight = self.settings.svgHeight - self.settings.margin.top - self.settings.margin.bottom
 	self.settings.plotWidth = self.settings.width - self.settings.margin.left - self.settings.margin.right
@@ -225,7 +225,7 @@ Chart.prototype.changeTitle = function(duration) {
 // Draw axes 
 Chart.prototype.drawAxes = function(duration) {
 	var self = this
-	var duration = duration || 1500;
+	var duration = duration || 500;
 	self.setScales()
 	if(self.settings.hasYAxis == true) self.yaxisLabels.transition().duration(duration).call(self.yaxis).selectAll('text').each(function(data) {
 		d3.select(this).attr('dat', data)
@@ -289,7 +289,6 @@ Chart.prototype.update = function(sets, resetScale) {
 // Resize event - repositions elements
 Chart.prototype.resize = function(resetScale) {
 	var self = this
-	console.log('resize build ', resetScale)
 	if(self.settings.resize == false) return
 	self.getSize()
 	if(self.settings.hasTitle) self.changeTitle()		
@@ -361,6 +360,41 @@ Chart.prototype.defineFunctions = function() {
 		self.yaxisLabels.call(self.yaxis)
 	}
 
+	self.legendRectFunc = function(leg) {
+		leg.attr("width", self.settings.legend.rectWidth)
+		   .attr("height", function(d) {
+				return self.settings.legend.rectHeight
+			})			
+			.attr('fill', function(d) {
+				return self.settings.color(d)
+			})
+			.attr('class', function(d) {
+				return 'leg-rect'
+			})
+	}
+	
+	self.legendTextFunc = function(txt) {
+		txt.text(function(d) {
+			var limit = Math.floor((self.settings.margin.right -10)/10.5)
+			var fullText =   d
+			var text = fullText
+			return text
+		})
+		.attr('fulltext', function(d) {  
+			var fulltext =   d
+			return fulltext
+		})
+		.attr('x', self.settings.legend.rectWidth + 5)
+		.attr('y', self.settings.legend.rectHeight/2 + 5)
+		.attr('fill', function(d) {
+			var color =  'black'
+			return color
+		})
+		.attr('class', function(d) {
+			return 'leg-text'
+		})
+	}
+
 	// Circle position function
 	self.circlePositionFunction = function(circle) {
 		circle
@@ -371,6 +405,7 @@ Chart.prototype.defineFunctions = function() {
 			.attr('r', function(d) {return self.settings.getRadius(d)})
 			.style('fill', function(d) {return self.settings.getColor(d)})
 			.attr('class', 'circle')
+			.attr('id', function(d) {return 'circle-' + d.id})
 			.attr('circle-id', function(d) {return d.id})
 			.style('visibility', function(d) {
 				if(self.xScale(d.x)<0 | self.xScale(d.x) > self.settings.plotWidth | self.yScale(d.y)<0 | self.yScale(d.y)>self.settings.plotHeight){
@@ -378,6 +413,8 @@ Chart.prototype.defineFunctions = function() {
 				} 
 				else return 'visible'
 			})
+			.style('stroke', 'black')
+			.style('stroke-width', function(d) {return d.id == self.settings.selected ? '2px' : '0px'})
 	}
 	
 	// Sankey node function
@@ -576,6 +613,8 @@ Chart.prototype.defineFunctions = function() {
 				return color
 			})
 			.style('opacity', opacity)
+			.style('stroke', 'black')
+			.style('stroke-width', function(d) {return d.id == self.settings.selected ? '2px' : '0px'})
 			
 		if(opacity == 0) circle.transition().duration(1000).style('opacity', 1).each('end', function() {d3.select(this).attr('class', 'point entered')})
 	}
