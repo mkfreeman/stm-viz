@@ -39,6 +39,7 @@ SingleView.prototype.init = function(sets) {
 				self.prepData(chart)
 				self.settings.buildChart(self, chart, i)
 			})		
+
 		}
 		if(typeof self.settings.preLoad == 'function') {
 			self.settings.preLoad(self, self.settings.dataFile, build)
@@ -49,6 +50,7 @@ SingleView.prototype.init = function(sets) {
 		self.addClickEvents()
 		self.addHoverEvents()
 		self.addPoshyEvents()
+		if(typeof self.settings.customBuild == 'function') self.settings.customBuild()
 
 	}
 	self.charts = []

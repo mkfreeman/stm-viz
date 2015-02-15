@@ -2,6 +2,9 @@ var settings = {
 	textView:{
 		id:'textView',
 		filePath:'data/output.csv', 
+		customBuild:function() {
+			$('#control-container-buttons-zoom')[0].parentNode.appendChild($('#control-container-buttons-zoom')[0])
+		},
 		charts:['scatterChart', 'textChart'], 
 		buildChart:function(view, chart, index) {
 			switch(chart) {

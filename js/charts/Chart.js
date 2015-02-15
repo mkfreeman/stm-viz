@@ -89,7 +89,7 @@ Chart.prototype.getSize = function() {
 // Set scales
 Chart.prototype.setScales = function() {
 	var self = this
-	// console.log('set scales')
+	console.log('set scales')
 	if(self.settings.hasScale == false) return
 	var elementSize = self.settings.getElementSize()
 	var limits = self.settings.lock == true ? self.settings.limits : self.getLimits()
@@ -157,7 +157,8 @@ Chart.prototype.build = function() {
 			.attr('transform', 'translate(' + self.settings.margin.left + ',' + self.settings.margin.top + ')')
 
 		if(self.settings.zoomAble == true) {
-			self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 15]).on("zoom", self.zoom))
+			self.zoomer = d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 15]).on("zoom", self.zoom)
+			self.g.call(self.zoomer)
 			self.g.append('rect')
 				.attr("class", "overlay")
 				.attr("id", "clip")
@@ -350,11 +351,13 @@ Chart.prototype.defineFunctions = function() {
 	var self = this
 
 	self.zoomTransform = function(d) {
+
 		// console.log('zoom transform ', self.xScale(d.x))
 		return 'translate(' + self.xScale(d.x) + ',' + self.yScale(d.y) + ')'
 	}
 	// Zooming
 	self.zoom = function() {
+		console.log('zoom', self.xScale.domain())
  		self.g.selectAll('.circle').call(self.circlePositionFunction)
 		self.xaxisLabels.call(self.xaxis)
 		self.yaxisLabels.call(self.yaxis)

@@ -17,6 +17,7 @@ var TextView = function(sets) {
 	self.init(initSettings)
 }
 
+
 TextView.prototype = Object.create(SingleView.prototype)
 
 TextView.prototype.getLabels = function() {
@@ -79,7 +80,8 @@ TextView.prototype.prepData = function(chart) {
 		case 'scatterChart':
 			self.update = function(control) {
 				self.getLabels()
-				var resetScale = self.settings.changedColorType == false && (control[0] == 'radiusVar' | control[0] == 'colorVar' |  control == 'click') ? false : true
+				var resetScale = (self.settings.changedColorType == false && (control[0] == 'radiusVar' | control[0] == 'colorVar' |  control == 'click') | control == 'zoom') ? false : true
+				console.log('update reset scale ', resetScale)
 				self.charts.map(function(chart,i) {
 					self.prepData(chart.settings.id)
 					self.changeTitle()
@@ -261,14 +263,17 @@ TextView.prototype.buildControls = function() {
 	})
 
 	// Zoom controls
-	self.mapControls = new Controls({
+	self.zoomControls = new Controls({
 		controller:self, 
 		container:'#container', 
 		controls: {
 			zoom:{
 				id:'zoom', 
 				type:'buttons', 
-				options:[{id:'in', text:'+', change:function(d){app.view.charts[0].zoom(d.id)}},{id:'reset', text:'•',  change:function(d){app.view.charts[0].zoom(d.id)}},{id:'out', text:'-',  change:function(d){app.view.charts[0].zoom(d.id)}}],
+				options:[
+					{id:'in', text:'+', change:function(d){view.charts[0].zoomIn();$('#control-button-in').blur()}},
+					{id:'reset', text:'•',  change:function(d){self.update('reset');$('#control-button-reset').blur()}},
+					{id:'out', text:'-',  change:function(d){view.charts[0].zoomOut();$('#control-button-out').blur()}}],
 			}
 		}
 	})

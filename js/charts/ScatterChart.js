@@ -90,6 +90,7 @@ ScatterChart.prototype.getLimits = function() {
 // Draw elements -- called on build and resize
 ScatterChart.prototype.draw = function(resetScale, duration) {
 	var self = this
+	console.log('draw scatter')
 	duration = duration == undefined ? 500 : duration
 	if(self.settings.hasLegend == true) self.drawLegend()	
 	if(resetScale == true) self.setScales()
@@ -102,7 +103,9 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 	self.g.selectAll('.circle').transition().duration(500).call(self.circlePositionFunction)
 	
 	if(self.settings.zoomAble == true && resetScale == true) {
-		self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
+		// self.g.call(d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 8]).on("zoom", self.zoom))
+		self.zoomer = d3.behavior.zoom().x(self.xScale).y(self.yScale).scaleExtent([1, 15]).on("zoom", self.zoom)
+		self.g.call(self.zoomer)
 	}
 	self.drawLegend()
 	// var select = $("#id_" + this.settings.highlighted)[0]
@@ -221,4 +224,20 @@ ScatterChart.prototype.getKeyByValue = function( obj, value ) {
 ScatterChart.prototype.shortenText = function(text,length) {
 	if(text.length<=length+3) return text
 	return text.substr(0, length) + '...'
+}
+
+
+ScatterChart.prototype.zoomIn = function() {
+   var self = this
+   if(self.zoomer.scale() > 8) return
+   self.zoomer.scale(self.zoomer.scale()+.1);
+   self.zoomer.event(self.g);
+}
+
+ScatterChart.prototype.zoomOut = function() {
+   var self = this
+   if(self.zoomer.scale() < .9) return
+   self.zoomer.scale(self.zoomer.scale()-.1);
+   self.zoomer.event(self.g);
+
 }
