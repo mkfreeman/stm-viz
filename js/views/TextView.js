@@ -215,7 +215,10 @@ TextView.prototype.buildControls = function() {
 		text: 'X Axis:', 
 		type: 'select',
 		options:function() {
-			return self.xVarValues.map(function(d){return {id:d, text:topicsObj[d]}})
+			return self.xVarValues.map(function(d){
+				var text = topicsObj[d] == undefined ? d : topicsObj[d]
+				return {id:d, text:text}
+			})
 		},
 		default:self.settings.xVar
 	}
@@ -225,7 +228,10 @@ TextView.prototype.buildControls = function() {
 		text: 'Y Axis:', 
 		type: 'select',
 		options:function() {
-			return self.yVarValues.map(function(d){return {id:d, text:topicsObj[d]}})
+			return self.yVarValues.map(function(d){
+				var text = topicsObj[d] == undefined ? d : topicsObj[d]
+				return {id:d, text:text}
+			})
 		},
 		default:self.settings.yVar
 	}
@@ -236,7 +242,10 @@ TextView.prototype.buildControls = function() {
 		text: 'Radius:', 
 		type: 'select',
 		options:function() {
-			return self.radiusValues.map(function(d){return {id:d, text:topicsObj[d]}})
+			return self.radiusValues.map(function(d){
+				var text = topicsObj[d] == undefined ? d : topicsObj[d]
+				return {id:d, text:text}
+			})
 		},
 		default:self.settings.radiusVar
 	}
@@ -246,7 +255,10 @@ TextView.prototype.buildControls = function() {
 		text: 'Color:', 
 		type: 'select',
 		options:function() {
-			return self.colorValues.map(function(d){return {id:d, text:topicsObj[d]}})
+			return self.colorValues.map(function(d){
+				var text = topicsObj[d] == undefined ? d : topicsObj[d]
+				return {id:d, text:text}
+			})
 		},
 		default:self.settings.colorVar
 	}
