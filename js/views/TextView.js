@@ -2,15 +2,15 @@
 var TextView = function(sets) {
 	var self = this 
 	defaults = {
-		xVar:'Topic 6', 
-		yVar:'Condition',
-		radiusVar:'Topic 1', 
-		colorVar:'Condition',
+		xVar:'Topic 1', 
+		yVar:'Topic 2',
+		radiusVar:'Topic 3', 
+		colorVar:'Topic 4',
 		minRadius:5, 
 		colorRange:colorbrewer['RdYlBu'][11],
 		maxRadius:20,
 		group:'All NCDs',
-		selected:77,
+		selected:0,
 		hasControls:true,  
 	}
 	var initSettings = $.extend(false, defaults, sets)
@@ -81,7 +81,6 @@ TextView.prototype.prepData = function(chart) {
 			self.update = function(control) {
 				self.getLabels()
 				var resetScale = (self.settings.changedColorType == false && (control[0] == 'radiusVar' | control[0] == 'colorVar' |  control == 'click') | control == 'zoom') ? false : true
-				console.log('update reset scale ', resetScale)
 				self.charts.map(function(chart,i) {
 					self.prepData(chart.settings.id)
 					self.changeTitle()
@@ -106,7 +105,9 @@ TextView.prototype.prepData = function(chart) {
 			self.setColor()
 			break
 		case 'textChart':
-			settings[chart].text = self.settings.data.filter(function(d){return d.id == self.settings.selected})[0].body
+			settings[chart].text = self.settings.data.filter(function(d){
+				console.log((d), Number(self.settings.selected))
+				return Number(d.id) == Number(self.settings.selected)})[0].body
 			break
 
 	}

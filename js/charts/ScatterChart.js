@@ -90,7 +90,6 @@ ScatterChart.prototype.getLimits = function() {
 // Draw elements -- called on build and resize
 ScatterChart.prototype.draw = function(resetScale, duration) {
 	var self = this
-	console.log('draw scatter')
 	duration = duration == undefined ? 500 : duration
 	if(self.settings.hasLegend == true) self.drawLegend()	
 	if(resetScale == true) self.setScales()
