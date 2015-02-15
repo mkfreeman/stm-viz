@@ -141,7 +141,7 @@ TextView.prototype.setColor = function() {
 		var max = d3.max(self.settings.data, function(d){return Number(d[self.settings.colorVar])})
 		var colorDomain = d3.range(max,min, -(max - min)/11)
 		var colorScale = Number(self.settings.data[0][self.settings.colorVar]) != self.settings.data[0][self.settings.colorVar] ? d3.scale.category10(): d3.scale.linear().range(self.settings.colorRange).domain(colorDomain)
-		settings['scatterChart'].getColor = function(d) {return colorScale(d.colorValue)}	
+		settings['scatterChart'].getColor = function(d) {return colorScale(d)}	
 		settings['scatterChart'].legendScale = d3.scale.linear().domain([min,max])
 	}
 }

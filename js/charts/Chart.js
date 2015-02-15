@@ -89,7 +89,6 @@ Chart.prototype.getSize = function() {
 // Set scales
 Chart.prototype.setScales = function() {
 	var self = this
-	console.log('set scales')
 	if(self.settings.hasScale == false) return
 	var elementSize = self.settings.getElementSize()
 	var limits = self.settings.lock == true ? self.settings.limits : self.getLimits()
@@ -124,7 +123,6 @@ Chart.prototype.setScales = function() {
 					.tickValues(d3.keys(self.settings.yAxisLabels).length >0 ? d3.values(self.settings.yAxisLabels) : null)
 
 	}
-	// console.log('set scales ', self.xScale.range(), self.xScale.domain())
 
 }
 
@@ -351,13 +349,10 @@ Chart.prototype.defineFunctions = function() {
 	var self = this
 
 	self.zoomTransform = function(d) {
-
-		// console.log('zoom transform ', self.xScale(d.x))
 		return 'translate(' + self.xScale(d.x) + ',' + self.yScale(d.y) + ')'
 	}
 	// Zooming
 	self.zoom = function() {
-		console.log('zoom', self.xScale.domain())
  		self.g.selectAll('.circle').call(self.circlePositionFunction)
 		self.xaxisLabels.call(self.xaxis)
 		self.yaxisLabels.call(self.yaxis)
@@ -369,7 +364,7 @@ Chart.prototype.defineFunctions = function() {
 				return self.settings.legend.rectHeight
 			})			
 			.attr('fill', function(d) {
-				return self.settings.color(d)
+				return self.settings.getColor(d)
 			})
 			.attr('class', function(d) {
 				return 'leg-rect'
@@ -401,12 +396,11 @@ Chart.prototype.defineFunctions = function() {
 	// Circle position function
 	self.circlePositionFunction = function(circle) {
 		circle
-			// .attr('transform', function(d){return 'translate(' + self.xScale(d.x) + ',' + self.yScale(d.y) + ')'})
 			.attr('transform', self.zoomTransform)
-			// .attr('cx', function(d) {if(d.x>.1) {console.log(d.x, self.xScale(d.x))};return self.xScale(d.x)})
-			// .attr('cy', function(d) {return self.yScale(d.y)})
 			.attr('r', function(d) {return self.settings.getRadius(d)})
-			.style('fill', function(d) {return self.settings.getColor(d)})
+			.style('fill', function(d) {
+				return self.settings.getColor(d.colorValue)}
+			)
 			.attr('class', 'circle')
 			.attr('id', function(d) {return 'circle-' + d.id})
 			.attr('circle-id', function(d) {return d.id})
