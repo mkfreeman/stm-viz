@@ -9,10 +9,14 @@ var TextView = function(sets) {
 		minRadius:5, 
 		colorRange:colorbrewer['RdYlBu'][11],
 		maxRadius:20,
+		idVariable:'id',
 		group:'All NCDs',
-		selected:0,
 		hasControls:true,  
 	}
+	topicsObj = {}
+	topics.map(function(d){
+		topicsObj[d.name] = d.name + ' (' + d.list + ')'
+	})
 	var initSettings = $.extend(false, defaults, sets)
 	self.init(initSettings)
 }
@@ -76,6 +80,7 @@ TextView.prototype.getLabels = function() {
 
 TextView.prototype.prepData = function(chart) {
 	var self = this
+	if(typeof self.settings.selected == 'undefined') self.settings.selected = self.settings.data[0].id
 	switch(chart) {
 		case 'scatterChart':
 			self.update = function(control) {
@@ -89,7 +94,7 @@ TextView.prototype.prepData = function(chart) {
 				self.updatePoshys()
 			}
 			settings[chart].data = self.settings.data.map(function(d, i) {
-				var id = self.settings.idVariable == undefined ? i : d[self.settings.id]
+				var id = self.settings.idVariable == undefined ? i : d[self.settings.idVariable]
 				var xVal = Number(d[self.settings.xVar]) != d[self.settings.xVar] ? self.settings.xAxisLabels[d[self.settings.xVar]] : d[self.settings.xVar]
 				var yVal = Number(d[self.settings.yVar]) != d[self.settings.yVar]  ? self.settings.yAxisLabels[d[self.settings.yVar]] : d[self.settings.yVar]
 				return {x:xVal, y:yVal, id:id, text:d.body, radiusValue:d[self.settings.radiusVar], colorValue:d[self.settings.colorVar]}
@@ -105,8 +110,10 @@ TextView.prototype.prepData = function(chart) {
 			self.setColor()
 			break
 		case 'textChart':
+			var tmp = 
+			settings[chart].text = 'hello'
 			settings[chart].text = self.settings.data.filter(function(d){
-				console.log((d), Number(self.settings.selected))
+				// console.log((d), Number(self.settings.selected))
 				return Number(d.id) == Number(self.settings.selected)})[0].body
 			break
 
@@ -208,7 +215,7 @@ TextView.prototype.buildControls = function() {
 		text: 'X Axis:', 
 		type: 'select',
 		options:function() {
-			return self.xVarValues.map(function(d){return {id:d, text:d}})
+			return self.xVarValues.map(function(d){return {id:d, text:topicsObj[d]}})
 		},
 		default:self.settings.xVar
 	}
@@ -218,7 +225,7 @@ TextView.prototype.buildControls = function() {
 		text: 'Y Axis:', 
 		type: 'select',
 		options:function() {
-			return self.yVarValues.map(function(d){return {id:d, text:d}})
+			return self.yVarValues.map(function(d){return {id:d, text:topicsObj[d]}})
 		},
 		default:self.settings.yVar
 	}
@@ -229,7 +236,7 @@ TextView.prototype.buildControls = function() {
 		text: 'Radius:', 
 		type: 'select',
 		options:function() {
-			return self.radiusValues.map(function(d){return {id:d, text:d}})
+			return self.radiusValues.map(function(d){return {id:d, text:topicsObj[d]}})
 		},
 		default:self.settings.radiusVar
 	}
@@ -239,7 +246,7 @@ TextView.prototype.buildControls = function() {
 		text: 'Color:', 
 		type: 'select',
 		options:function() {
-			return self.colorValues.map(function(d){return {id:d, text:d}})
+			return self.colorValues.map(function(d){return {id:d, text:topicsObj[d]}})
 		},
 		default:self.settings.colorVar
 	}
