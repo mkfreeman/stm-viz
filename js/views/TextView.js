@@ -9,6 +9,7 @@ var TextView = function(sets) {
 		minRadius:5, 
 		colorRange:colorbrewer['RdYlBu'][11],
 		maxRadius:20,
+		defaultColor:'rgb(139, 139, 139)',
 		idVariable:'id',
 		group:'All NCDs',
 		hasControls:true,  
@@ -24,6 +25,25 @@ var TextView = function(sets) {
 
 TextView.prototype = Object.create(SingleView.prototype)
 
+
+TextView.prototype.getVariableLabels = function(varName, labelVar) {
+	var self = this
+	if(Number(self.settings.data[0][self.settings[varName]]) != self.settings.data[0][self.settings[varName]]) {
+		var names = []
+		self.settings.data.map(function(d){
+			if(names.indexOf(d[self.settings[varName]]) == -1) names.push(d[self.settings[varName]])
+		})
+		names.sort(function(a,b) {
+			if(a < b) return -1;
+		    if(a > b) return 1;
+		    return 0;
+		}).filter(function(d) {return typeof(d) != 'undefined'})
+		.map(function(d,i){
+			console.log(d)
+			self.settings[labelVar][d] = labelVar == 'colorVar' ? d : i
+		})
+	}
+}
 TextView.prototype.getLabels = function() {
 	var self = this
 	self.settings.changedColorType = false
@@ -32,48 +52,11 @@ TextView.prototype.getLabels = function() {
 	self.settings.xAxisLabels = {}
 	self.settings.yAxisLabels = {}
 	self.settings.colorLabels = {}
-	if(Number(self.settings.data[0][self.settings.xVar]) != self.settings.data[0][self.settings.xVar]) {
-		var names = []
-		self.settings.data.map(function(d){
-			if(names.indexOf(d[self.settings.xVar]) == -1) names.push(d[self.settings.xVar])
-		})
-		names.sort(function(a,b) {
-			if(a < b) return -1;
-		    if(a > b) return 1;
-		    return 0;
-		}).map(function(d,i){
-			self.settings.xAxisLabels[d] = i
-		})
-	}
-	if(Number(self.settings.data[0][self.settings.yVar]) != self.settings.data[0][self.settings.yVar]) {
-		
-		var names = []
-		self.settings.data.map(function(d){
-			if(names.indexOf(d[self.settings.yVar]) == -1) names.push(d[self.settings.yVar])
-		})
-		names.sort(function(a,b) {
-			if(a < b) return -1;
-		    if(a > b) return 1;
-		    return 0;
-		}).map(function(d,i){
-			self.settings.yAxisLabels[d] = i
-		})
-	}
-	if(Number(self.settings.data[0][self.settings.colorVar]) != self.settings.data[0][self.settings.colorVar]) {
-		if(d3.keys(oldColorLabels).length == 0 ) self.settings.changedColorType = true
-		var names = []
-		self.settings.data.map(function(d){
-			if(names.indexOf(d[self.settings.colorVar]) == -1) names.push(d[self.settings.colorVar])
-		})
-		names.sort(function(a,b) {
-			if(a < b) return -1;
-		    if(a > b) return 1;
-		    return 0;
-		}).map(function(d,i){
-			self.settings.colorLabels[d] = d
-		})
-	}
-	if((oldColorLength == 0 && d3.keys(self.settings.colorLabels).length > 0) | (d3.keys(oldColorLabels).length > 0 && d3.keys(self.settings.colorLabels).length == 0)) {
+	self.getVariableLabels('xVar', 'xAxisLabels')
+	self.getVariableLabels('yVar', 'yAxisLabels')
+	self.getVariableLabels('colorVar', 'colorLabels')
+	// console.log('get labels colroVar ', self.settings.colorVar)
+	if(self.settings.colorVar == 'none' | (oldColorLength == 0 && d3.keys(self.settings.colorLabels).length > 0) | (d3.keys(oldColorLabels).length > 0 && d3.keys(self.settings.colorLabels).length == 0)) {
 		self.settings.changedColorType = true
 	}
 }
@@ -84,8 +67,10 @@ TextView.prototype.prepData = function(chart) {
 	switch(chart) {
 		case 'scatterChart':
 			self.update = function(control) {
+				console.log('update ', control[0], self.settings.changedColorType)
 				self.getLabels()
-				var resetScale = (self.settings.changedColorType == false && (control[0] == 'radiusVar' | control[0] == 'colorVar' |  control == 'click') | control == 'zoom') ? false : true
+				var resetScale = ((self.settings.changedColorType == false && (control[0] == 'radiusVar' | control[0] == 'colorVar' |  control == 'click') | control == 'zoom')) ? false : true
+				if(self.settings.colorVar == 'none' && control[0] == 'radiusVar' | control == 'click') resetScale = false
 				self.charts.map(function(chart,i) {
 					self.prepData(chart.settings.id)
 					self.changeTitle()
@@ -103,6 +88,7 @@ TextView.prototype.prepData = function(chart) {
 			settings[chart].xAxisLabels = self.settings.xAxisLabels
 			settings[chart].yAxisLabels = self.settings.yAxisLabels
 			settings[chart].colorLabels = self.settings.colorLabels
+			settings[chart].colorVar = self.settings.colorVar
 			settings[chart].yLabel = self.settings.yVar
 			settings[chart].selected = Number(self.settings.selected)
 			settings[chart].legendLabel = self.settings.colorVar
@@ -113,7 +99,6 @@ TextView.prototype.prepData = function(chart) {
 			var tmp = 
 			settings[chart].text = 'hello'
 			settings[chart].text = self.settings.data.filter(function(d){
-				// console.log((d), Number(self.settings.selected))
 				return Number(d.id) == Number(self.settings.selected)})[0].body
 			break
 
@@ -142,7 +127,8 @@ TextView.prototype.setColor = function() {
 	var self = this
 	settings['scatterChart'].colorRange = self.settings.colorRange
 	if(self.settings.colorVar == 'none') {
-		settings['scatterChart'].getColor = function(d) {return 10}
+		settings['scatterChart'].getColor = function(d) {
+			return self.settings.defaultColor}
 	}
 	else {
 		var min = d3.min(self.settings.data, function(d){return Number(d[self.settings.colorVar])})
@@ -194,12 +180,18 @@ TextView.prototype.loadData = function(callback) {
 
 TextView.prototype.getControlValues = function() {
 	var self = this
-	self.yVarValues = self.xVarValues = self.colorValues = d3.keys(self.settings.data[0]).filter(function(d) {
+	self.yVarValues = self.xVarValues = d3.keys(self.settings.data[0]).filter(function(d) {
 		return d!= 'body'
 	})
 
+	self.colorValues = d3.keys(self.settings.data[0]).filter(function(d) {
+		return d!= 'body'
+	})
+
+	self.colorValues.unshift('none')
 	self.radiusValues =  d3.keys(self.settings.data[0])
 		.filter(function(d) {return isNaN(Number(self.settings.data[0][d])) == false})
+	self.radiusValues.unshift('none')
 }
 
 TextView.prototype.buildControls = function() {
@@ -210,6 +202,7 @@ TextView.prototype.buildControls = function() {
 	self.filterControlSettings = {}
 	self.rightControlSettings = {}
 	
+	// X variable
 	self.controlSettings['xVar'] = {
 		id: 'xVar', 
 		text: 'X Axis:', 
@@ -223,6 +216,7 @@ TextView.prototype.buildControls = function() {
 		default:self.settings.xVar
 	}
 
+	// Y variable
 	self.controlSettings['yVar'] = {
 		id: 'yVar', 
 		text: 'Y Axis:', 
@@ -237,6 +231,7 @@ TextView.prototype.buildControls = function() {
 	}
 	
 
+	// Radius
 	self.controlSettings['radiusVar'] = {
 		id: 'radiusVar', 
 		text: 'Radius:', 
@@ -250,6 +245,7 @@ TextView.prototype.buildControls = function() {
 		default:self.settings.radiusVar
 	}
 
+	// Color
 	self.controlSettings['colorVar'] = {
 		id: 'colorVar', 
 		text: 'Color:', 
@@ -262,18 +258,6 @@ TextView.prototype.buildControls = function() {
 		},
 		default:self.settings.colorVar
 	}
-
-	// self.controlSettings['reset'] = {
-	// 	id: 'reset', 
-	// 	text: 'Center', 
-	// 	type: 'button',
-	// 	default:true, 
-	// 	change:function() {
-	// 		self.update('recenter')
-	// 		// alert('test')
-	// 		$('#control-button-reset').blur()
-	// 	}
-	// }
 
 	// Bottom controls
 	self.bottomControls = new Controls({
@@ -297,6 +281,4 @@ TextView.prototype.buildControls = function() {
 			}
 		}
 	})
-	
-
 }

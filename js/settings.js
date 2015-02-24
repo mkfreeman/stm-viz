@@ -50,8 +50,7 @@ var settings = {
 		id:'scatterChart',
 		getWidth:function(chart) {return $('#'+chart.settings.container).width()*2/3 - 10}, 
 		getMargin:function(chart) { 
-			var right = d3.keys(chart.settings.colorLabels).length == 0 ? 50 : 150
-			// var bottom = d3.keys(chart.settings.colorLabels).length == 0 ? 0 : 20
+			var right = d3.keys(chart.settings.colorLabels).length == 0 | chart.settings.colorVar == 'none' ? 50 : 150
 			var bottom = 20
 			return {
 				top:50, 

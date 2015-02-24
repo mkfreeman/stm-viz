@@ -27,7 +27,7 @@ var ScatterChart = function(sets) {
 		ordinalType:'overwrite',
 		legendType:'continuous',
 		getHeight:function(chart) {
-			var bottom = d3.keys(chart.settings.colorLabels).length != 0 ? 30 : 80
+			var bottom = d3.keys(chart.settings.colorLabels).length != 0 | chart.settings.colorVar == 'none' ? 30 : 80
 			return $('#' + self.settings.container).innerHeight() - bottom - $('#bottom').height()
 		},
 		zoomAble:true,
@@ -116,6 +116,7 @@ ScatterChart.prototype.draw = function(resetScale, duration) {
 ScatterChart.prototype.drawLegend = function() {
 	var self = this
 	$('#' + self.settings.id + '-legend-wrapper').remove()
+	if(self.settings.colorVar == 'none') return
 	if(d3.keys(self.settings.colorLabels).length == 0) self.drawContinuousLegend()
 	else self.drawCategoricalLegend()
 }
